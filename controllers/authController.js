@@ -26,7 +26,7 @@ exports.register = async (req, res)=>{
         //Confirmacion del proceso
         res.status(200).json({message: 'Usuario registrado correctamente'});
     }catch(error){
-        res.status(500).json({message: 'Error en el servidor', error})
+        res.status(500).json({message: 'Error en el servidor', error: error.message})
     }
 };
 
