@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "2364c402-a9e5-4faf-9900-98d122fb0bed",
+		"name": "POSTMAN-task-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48502452",
+		"_collection_link": "https://pablo-sl-1912-4943057.postman.co/workspace/Pablo-Suarez's-Workspace~dc590084-c60f-434a-86bb-b166a5e0a730/collection/48502452-2364c402-a9e5-4faf-9900-98d122fb0bed?action=share&source=collection_link&creator=48502452"
+	},
+	"item": [
+		{
+			"name": "getTasks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/tasks/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"tasks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteTask",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"descargar kovaaks\",\r\n  \"description\": \"kovaaks\",\r\n  \"deadLine\": \"2025-09-18T18:00:00.000Z\",\r\n  \"status\": false\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/task/68c99f95daf1445049585ff5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"task",
+						"68c99f95daf1445049585ff5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getTaskById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/task/68c98f6486a10ec1aeedcb41",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"task",
+						"68c98f6486a10ec1aeedcb41"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createTask",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"Tarea de prueba\",\r\n  \"description\": \"Esta es una tarea creada para probar la API\",\r\n  \"deadLine\": \"2025-09-30T23:59:59.000Z\",\r\n  \"status\": false\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/task/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"task",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateTask",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

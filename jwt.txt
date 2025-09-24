@@ -1,0 +1,177 @@
+1. Instalar dependencias
+npm install bcryptjs jsonwebtoken dotenv
+
+📌 2. Crear modelo de usuario (models/User.js)
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: true
+  }
+}, { timestamps: true });
+
+module.exports = mongoose.model('User', userSchema);
+
+📌 3. Controlador de autenticación (controllers/authController.js)
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const SECRET_KEY = process.env.SECRET_KEY;
+
+// Registrar usuario
+exports.register = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Verificar si ya existe
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ msg: 'El usuario ya existe' });
+
+    // Encriptar contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear usuario
+    const newUser = new User({ email, password: hashedPassword });
+    await newUser.save();
+
+    res.status(201).json({ msg: 'Usuario registrado exitosamente' });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error en el servidor', error });
+  }
+};
+
+// Login usuario
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Verificar usuario
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ msg: 'Credenciales inválidas' });
+
+    // Verificar contraseña
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ msg: 'Credenciales inválidas' });
+
+    // Generar token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      SECRET_KEY,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ token });
+  } catch (error) {
+    res.status(500).json({ msg: 'Error en el servidor', error });
+  }
+};
+
+📌 4. Middleware de autenticación (middleware/authMiddleware.js)
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const SECRET_KEY = process.env.SECRET_KEY;
+
+module.exports = (req, res, next) => {
+  const token = req.header('Authorization');
+
+  if (!token) {
+    return res.status(401).json({ msg: 'Acceso denegado. Token requerido' });
+  }
+
+  try {
+    const decoded = jwt.verify(token.replace('Bearer ', ''), SECRET_KEY);
+    req.user = decoded; // Guardamos info del usuario
+    next();
+  } catch (error) {
+    res.status(401).json({ msg: 'Token inválido o expirado' });
+  }
+};
+
+📌 5. Rutas de autenticación (routes/authRoutes.js)
+const express = require('express');
+const router = express.Router();
+const { register, login } = require('../controllers/authController');
+
+// Endpoints de auth
+router.post('/register', register);
+router.post('/login', login);
+
+module.exports = router;
+
+📌 6. Integrar en index.js
+const express = require('express');
+const cors = require('cors');
+const connectDb = require('./config/db');
+const taskRoutes = require('./routes/taskRoutes');
+const authRoutes = require('./routes/authRoutes');
+require('dotenv').config();
+
+const app = express();
+const PORT = 5000;
+
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
+// Conexión DB
+connectDb();
+
+// Rutas
+app.use('/api', authRoutes);
+app.use('/api', taskRoutes);
+
+app.listen(PORT, () => {
+  console.log('Servidor corriendo en el puerto ' + PORT);
+});
+
+📌 7. Proteger rutas de tareas (routes/taskRoutes.js)
+
+👉 Ejemplo: proteger solo obtener todas las tareas y crear tarea con JWT.
+
+const express = require('express');
+const router = express.Router();
+const {
+  getTasks,
+  getTaskById,
+  updateTask,
+  createTask,
+  deleteTask
+} = require('../controllers/taskController');
+
+const auth = require('../middleware/authMiddleware');
+
+// Rutas protegidas con JWT
+router.get('/tasks', auth, getTasks);
+router.post('/task', auth, createTask);
+
+// Rutas públicas
+router.get('/task/:id', getTaskById);
+router.put('/task/:id', updateTask);
+router.delete('/task/:id', deleteTask);
+
+module.exports = router;
+
+🚀 Flujo en Postman
+
+POST /api/register → crear usuario.
+
+POST /api/login → devuelve token JWT.
+
+Usar token en rutas protegidas (GET /api/tasks, POST /api/task) agregando en Headers:
+
+Authorization: Bearer TU_TOKEN
+
+
+⚠️ No olvides crear el archivo .env en la raíz del proyecto con tu clave secreta:
+
+SECRET_KEY=unaClaveMuySeguraYLarga123!@#
